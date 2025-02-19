@@ -28,7 +28,17 @@ def convert_file_to_md(file_path: str, file_extension: str):
 
 async def extract_criteria_service(file: UploadFile, file_extension: str):
     """
+    Extracts ranking criteria from job description file through 2-step LLM processing:
     
+    1. Clean JD Extraction:
+       - Converts PDF/DOCX to markdown (optimal for LLM parsing)
+       - Removes non-JD content (company info, benefits, etc)
+    
+    2. Criteria Generation:
+       - Extracts requirements from cleaned JD
+       - Groups similar requirements
+       - Summarizes into distinct criteria
+       - Returns JSON with standardized format
     """
     # save the uploaded file
     file_path = await save_upload_file(file)
@@ -84,7 +94,17 @@ async def extract_criteria_service(file: UploadFile, file_extension: str):
 
 async def score_resumes_service(files: list[UploadFile], criteria: str):
     """
+    Scores multiple resumes against criteria through optimized async pipeline:
     
+    1. Column Name Generation:
+       - Creates standardized scoring columns from criteria
+       - Prevents LLM hallucination in output format
+    
+    2. Async Resume Processing:
+       - Parallel processing of each resume
+       - Scores each criterion (0-5) based on explicit evidence
+       - Calculates total score server-side (avoiding LLM math errors)
+
     """
     # save the uploaded files
     file_paths = [await save_upload_file(file) for file in files]
